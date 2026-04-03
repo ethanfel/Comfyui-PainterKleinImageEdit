@@ -19,14 +19,6 @@ class PainterKleinImageEdit:
             },
             "optional": {
                 "vae": ("VAE",),
-                "reference_latents_method": (["index", "offset", "uxo"], {
-                    "tooltip": (
-                        "Positional encoding for multi-image reference latents (only used when ≥2 images are connected).\n"
-                        "• index — each reference gets a unique index; works best for inpainting and most edits.\n"
-                        "• offset — references share index=1 but are tiled spatially; may conflict with inpainting.\n"
-                        "• uxo — references are placed side-by-side in a continuous canvas layout."
-                    ),
-                }),
             }
         }
 
@@ -37,7 +29,7 @@ class PainterKleinImageEdit:
     DESCRIPTION = "FLUX.2 [klein] image editing — dynamic image/mask inputs via num_images widget"
 
     def encode(self, clip, prompt, negative_prompt, num_images, batch_size, width, height,
-               vae=None, reference_latents_method="offset", **kwargs):
+               vae=None, **kwargs):
 
         if vae is None:
             raise RuntimeError("VAE is required. Please connect a VAE loader.")
@@ -96,15 +88,6 @@ class PainterKleinImageEdit:
                 negative, {"reference_latents": ref_latents}, append=True
             )
 
-            if len(ref_latents) > 1:
-                # Normalize: the FLUX model checks == "uxo" exactly (not "uxo/uno")
-                method = "uxo" if reference_latents_method.startswith("uxo") else reference_latents_method
-                positive = node_helpers.conditioning_set_values(
-                    positive, {"reference_latents_method": method}
-                )
-                negative = node_helpers.conditioning_set_values(
-                    negative, {"reference_latents_method": method}
-                )
 
         # Canvas latent:
         # - image1 connected: encode image1 (resized to width×height) as the starting canvas.

@@ -50,7 +50,6 @@ git clone https://github.com/ethanfel/Comfyui-PainterKleinImageEdit.git
 | `width` | INT | Output canvas width |
 | `height` | INT | Output canvas height |
 | `vae` | VAE | FLUX.2 [klein] VAE |
-| `reference_latents_method` | dropdown | Positional encoding for multi-image (≥2 refs). `index` recommended; `offset` tiles spatially; `uxo` places refs side-by-side |
 | `image1`…`image10` | IMAGE | Reference images (slots shown based on `num_images`) |
 | `mask1`…`mask10` | MASK | Optional masks per image slot |
 
@@ -78,7 +77,7 @@ Set `num_images` to 1, connect `image1`. Describe the desired edit in `prompt`.
 Connect `image1` + `mask1`. The masked region will be regenerated; the rest follows the reference.
 
 ### Multi-image edit
-Set `num_images` to the number of references, connect each image. Use `reference_latents_method = offset` unless you are using the 9B KV model (use `index_timestep_zero` for that).
+Set `num_images` to the number of references, connect each image. The model handles positional encoding automatically.
 
 ---
 
