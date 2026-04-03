@@ -19,13 +19,12 @@ class PainterKleinImageEdit:
             },
             "optional": {
                 "vae": ("VAE",),
-                "reference_latents_method": (["offset", "index", "uxo/uno", "index_timestep_zero"], {
+                "reference_latents_method": (["index", "offset", "uxo"], {
                     "tooltip": (
-                        "Positional encoding applied to multi-image reference latents (only used when ≥2 images are connected).\n"
-                        "• offset — recommended for most cases; adds a position offset per image.\n"
-                        "• index — uses the raw image index as position.\n"
-                        "• uxo/uno — alternates positive/negative offsets between images.\n"
-                        "• index_timestep_zero — index encoding zeroed at the first timestep; recommended for the 9B KV model."
+                        "Positional encoding for multi-image reference latents (only used when ≥2 images are connected).\n"
+                        "• index — each reference gets a unique index; works best for inpainting and most edits.\n"
+                        "• offset — references share index=1 but are tiled spatially; may conflict with inpainting.\n"
+                        "• uxo — references are placed side-by-side in a continuous canvas layout."
                     ),
                 }),
             }
@@ -99,11 +98,13 @@ class PainterKleinImageEdit:
             )
 
             if len(ref_latents) > 1:
+                # Normalize: the FLUX model checks == "uxo" exactly (not "uxo/uno")
+                method = "uxo" if reference_latents_method.startswith("uxo") else reference_latents_method
                 positive = node_helpers.conditioning_set_values(
-                    positive, {"reference_latents_method": reference_latents_method}
+                    positive, {"reference_latents_method": method}
                 )
                 negative = node_helpers.conditioning_set_values(
-                    negative, {"reference_latents_method": reference_latents_method}
+                    negative, {"reference_latents_method": method}
                 )
 
         # Canvas latent:
