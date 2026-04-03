@@ -44,17 +44,23 @@ app.registerExtension({
         const onNodeCreated = nodeType.prototype.onNodeCreated;
         nodeType.prototype.onNodeCreated = function () {
             const result = onNodeCreated?.apply(this, arguments);
+            const node = this;
 
             const widget = this.widgets?.find((w) => w.name === "num_images");
             if (widget) {
-                syncSlots(this, widget.value);
+                syncSlots(node, widget.value);
 
-                // Watch value changes from the user editing the widget
-                const origCallback = widget.callback;
-                widget.callback = (...args) => {
-                    origCallback?.(...args);
-                    syncSlots(this, args[0]);
-                };
+                // Intercept ALL value changes (drag, arrows, keyboard, programmatic)
+                // via property descriptor — more reliable than wrapping widget.callback.
+                let _value = widget.value;
+                Object.defineProperty(widget, "value", {
+                    get() { return _value; },
+                    set(v) {
+                        _value = v;
+                        syncSlots(node, v);
+                    },
+                    configurable: true,
+                });
             }
 
             return result;

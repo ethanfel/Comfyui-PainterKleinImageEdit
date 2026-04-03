@@ -19,7 +19,15 @@ class PainterKleinImageEdit:
             },
             "optional": {
                 "vae": ("VAE",),
-                "reference_latents_method": (["offset", "index", "uxo/uno", "index_timestep_zero"],),
+                "reference_latents_method": (["offset", "index", "uxo/uno", "index_timestep_zero"], {
+                    "tooltip": (
+                        "Positional encoding applied to multi-image reference latents (only used when ≥2 images are connected).\n"
+                        "• offset — recommended for most cases; adds a position offset per image.\n"
+                        "• index — uses the raw image index as position.\n"
+                        "• uxo/uno — alternates positive/negative offsets between images.\n"
+                        "• index_timestep_zero — index encoding zeroed at the first timestep; recommended for the 9B KV model."
+                    ),
+                }),
             }
         }
 
