@@ -1,44 +1,89 @@
-### ComfyUI-PainterFluxImageEdit
+# ComfyUI-PainterFluxImageEditUpdated
 
+An improved ComfyUI node for **FLUX.2 [klein]** (4B / 9B) image editing and text-to-image generation.
 
-## Flux2 文生图 & 图生图编辑一体化节点，适合9B，4B的FLUX2文生图and图片编辑工作流。
-
-
-###  文生图：
-<img width="2138" height="889" alt="image" src="https://github.com/user-attachments/assets/0c1fbfcf-4deb-4ff1-8f3e-55d714fe0dd1" />
-
-###  单图编辑：
-<img width="2608" height="1220" alt="AA%NPS$_SCQKAUZ)QD$%JDI" src="https://github.com/user-attachments/assets/0832e665-93b1-4568-91fd-a685e99f99d4" />
-
-###  多图编辑：
-<img width="2789" height="1266" alt="A%GJ96GX_9NJF5)HJZF9CN6" src="https://github.com/user-attachments/assets/b15e6d4c-b3b3-4162-885d-3c834d59c564" />
-
-
-
-## 功能特点
-
-
-- **双模式支持**：无输入图片时为纯文生图，接入图片自动切换为图生图编辑
-- **多图编辑**：最多支持 3 张参考图同时编辑，自动编码为 reference latents
-- **智能遮罩**：首图支持 mask 遮罩，实现精确区域重绘
-- **分辨率直设**：直接在节点内指定输出图片尺寸
-
-## 安装
-
-通过 ComfyUI-Manager 搜索 `ComfyUI-PainterFluxImageEdit` 安装，或手动克隆到 `custom_nodes` 目录：
-
-```
-git clone https://github.com/princepainter/Comfyui-PainterFluxImageEdit.git
-```
-
-## 使用
-
-在工作流中替换原有的文本编码+VAE编码+参考潜空间三节点组合，直接连接 Flux2 采样器即可。
-
-## 注意事项
-
-- 需要配合 Flux2 模型使用
-- mask 仅对第一张输入图片生效
-- 图片尺寸建议为 8 的倍数
+This is an updated version of the original PainterFluxImageEdit node, rewritten specifically for the FLUX.2 [klein] architecture with bug fixes, new features, and dynamic inputs.
 
 ---
+
+## What's New
+
+- **Bug fixes** — removed dead vision-token code inherited from QwenImage that did nothing on FLUX.2 [klein]; fixed a latent output bug that caused the reference image to replace the generation canvas
+- **Negative prompt** — dedicated input for negative conditioning
+- **Dynamic inputs** — set `num_images` (1–10) and image/mask slots appear and disappear automatically; no more manual mode dropdown
+- **Per-image masks** — every image slot has its own mask input; mask1 drives inpainting on the canvas, masks 2–N zero out regions of their reference image before encoding
+- **Reference latents method** — expose `offset`, `index`, `uxo/uno`, `index_timestep_zero` for multi-image workflows (required for the 9B KV model)
+
+---
+
+## Features
+
+- **Text-to-image** — leave all image slots unconnected
+- **Single-image edit** — connect one reference image; the model edits it according to the prompt
+- **Multi-image edit** — connect up to 10 reference images simultaneously
+- **Inpainting** — connect a mask to `mask1` to target a specific region for regeneration
+- **Reference image masking** — connect masks to `mask2`–`mask10` to focus the model on specific regions of each reference
+
+---
+
+## Installation
+
+Via ComfyUI Manager — search for `ComfyUI-PainterFluxImageEditUpdated`.
+
+Or clone manually into your `custom_nodes` directory:
+
+```bash
+git clone https://github.com/ethanfel/Comfyui-PainterFluxImageEditUpdated.git
+```
+
+---
+
+## Node Inputs
+
+| Input | Type | Description |
+|---|---|---|
+| `clip` | CLIP | FLUX.2 [klein] CLIP (Qwen3 text encoder) |
+| `prompt` | STRING | Positive text prompt |
+| `negative_prompt` | STRING | Negative text prompt |
+| `num_images` | INT 1–10 | Number of image/mask slot pairs to show |
+| `batch_size` | INT 1–64 | Generation batch size |
+| `width` | INT | Output canvas width |
+| `height` | INT | Output canvas height |
+| `vae` | VAE | FLUX.2 [klein] VAE |
+| `reference_latents_method` | dropdown | Positional encoding method for multi-image (`offset` recommended for most cases) |
+| `image1`…`image10` | IMAGE | Reference images (slots shown based on `num_images`) |
+| `mask1`…`mask10` | MASK | Optional masks per image slot |
+
+## Node Outputs
+
+| Output | Type | Description |
+|---|---|---|
+| `positive` | CONDITIONING | Positive conditioning with reference latents |
+| `negative` | CONDITIONING | Negative conditioning with reference latents |
+| `latent` | LATENT | Empty canvas latent (+ noise_mask if mask1 connected) |
+
+---
+
+## Usage
+
+Connect the node outputs directly to a FLUX.2 [klein] sampler. It replaces the standard text encoder + VAE encode + reference latent node chain.
+
+### Text-to-image
+Connect `clip`, `vae`, `prompt` — leave all image slots empty.
+
+### Single-image edit
+Set `num_images` to 1, connect `image1`. Describe the desired edit in `prompt`.
+
+### Inpainting
+Connect `image1` + `mask1`. The masked region will be regenerated; the rest follows the reference.
+
+### Multi-image edit
+Set `num_images` to the number of references, connect each image. Use `reference_latents_method = offset` unless you are using the 9B KV model (use `index_timestep_zero` for that).
+
+---
+
+## Notes
+
+- Designed for **FLUX.2 [klein] 4B and 9B** only — not compatible with FLUX.1 or FLUX.1 Kontext
+- Image resolution is up to you — no forced rescaling
+- Width and height should be multiples of 16
