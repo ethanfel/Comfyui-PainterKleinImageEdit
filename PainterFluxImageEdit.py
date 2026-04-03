@@ -85,7 +85,7 @@ class PainterFluxImageEdit:
                 negative, {"reference_latents": ref_latents}, append=True
             )
 
-            if num_images > 1:
+            if len(ref_latents) > 1:
                 positive = node_helpers.conditioning_set_values(
                     positive, {"reference_latents_method": reference_latents_method}
                 )
