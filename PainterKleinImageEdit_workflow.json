@@ -29,22 +29,10 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.8.2",
-        "Node name for S&R": "SaveImage",
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65,
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
-        }
+        "Node name for S&R": "SaveImage"
       },
       "widgets_values": [
-        "Flux2-Klein"
+        "PainterKleinImageEdit"
       ]
     },
     {
@@ -79,15 +67,10 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.11.0",
-        "Node name for S&R": "LoadImage",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.5.2"
-        }
+        "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "微信图片_20260125163603_9871_3.png",
+        "image1.png",
         "image"
       ]
     },
@@ -123,15 +106,10 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.11.0",
-        "Node name for S&R": "LoadImage",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.5.2"
-        }
+        "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "jimeng-2026-01-30-7509-将背景变成纯灰色，男人表情改成严肃温和儒雅，略带忧郁，其他不变.png",
+        "image2.png",
         "image"
       ]
     },
@@ -164,25 +142,13 @@
         "cnr_id": "comfy-core",
         "ver": "0.8.2",
         "Node name for S&R": "VAELoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
-        },
         "models": [
           {
             "name": "flux2-vae.safetensors",
             "url": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors",
             "directory": "vae"
           }
-        ],
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
+        ]
       },
       "widgets_values": [
         "flux2-vae.safetensors"
@@ -216,25 +182,13 @@
         "cnr_id": "comfy-core",
         "ver": "0.8.2",
         "Node name for S&R": "UNETLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
-        },
         "models": [
           {
             "name": "flux-2-klein-4b-fp8.safetensors",
             "url": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4b-fp8/resolve/main/flux-2-klein-4b-fp8.safetensors",
             "directory": "diffusion_models"
           }
-        ],
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
+        ]
       },
       "widgets_values": [
         "Flux2\\flux-2-klein-9b-fp8.safetensors",
@@ -269,25 +223,13 @@
         "cnr_id": "comfy-core",
         "ver": "0.8.2",
         "Node name for S&R": "CLIPLoader",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
-        },
         "models": [
           {
             "name": "qwen_3_4b.safetensors",
             "url": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors",
             "directory": "text_encoders"
           }
-        ],
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
+        ]
       },
       "widgets_values": [
         "qwen_3_8b_fp8mixed.safetensors",
@@ -343,12 +285,7 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.9.2",
-        "Node name for S&R": "KSampler",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
-        }
+        "Node name for S&R": "KSampler"
       },
       "widgets_values": [
         793311037956471,
@@ -399,25 +336,13 @@
       "properties": {
         "cnr_id": "comfy-core",
         "ver": "0.8.2",
-        "Node name for S&R": "VAEDecode",
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "version": "7.5.2",
-          "input_ue_unconnectable": {}
-        },
-        "enableTabs": false,
-        "tabWidth": 65,
-        "tabXOffset": 10,
-        "hasSecondTab": false,
-        "secondTabText": "Send Back",
-        "secondTabOffset": 80,
-        "secondTabWidth": 65
+        "Node name for S&R": "VAEDecode"
       },
       "widgets_values": []
     },
     {
       "id": 145,
-      "type": "PainterFluxImageEdit",
+      "type": "PainterKleinImageEdit",
       "pos": [
         1679.6383001628583,
         676.7379435324882
@@ -442,16 +367,14 @@
           "link": 277
         },
         {
-          "name": "image1_mask",
-          "shape": 7,
-          "type": "MASK",
-          "link": null
-        },
-        {
           "name": "image1",
-          "shape": 7,
           "type": "IMAGE",
           "link": 278
+        },
+        {
+          "name": "mask1",
+          "type": "MASK",
+          "link": null
         },
         {
           "name": "image2",
@@ -459,9 +382,19 @@
           "link": 279
         },
         {
+          "name": "mask2",
+          "type": "MASK",
+          "link": null
+        },
+        {
           "name": "image3",
           "type": "IMAGE",
           "link": 280
+        },
+        {
+          "name": "mask3",
+          "type": "MASK",
+          "link": null
         }
       ],
       "outputs": [
@@ -488,18 +421,16 @@
         }
       ],
       "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {}
-        },
-        "Node name for S&R": "PainterFluxImageEdit"
+        "Node name for S&R": "PainterKleinImageEdit"
       },
       "widgets_values": [
-        "Latina female with thick wavy hair, harbor boats and pastel houses behind. Breezy seaside light, warm tones, cinematic close-up. ",
-        "3_image",
+        "Latina female with thick wavy hair, harbor boats and pastel houses behind. Breezy seaside light, warm tones, cinematic close-up.",
+        "",
+        3,
         1,
         1920,
-        1072
+        1072,
+        "offset"
       ],
       "color": "#232",
       "bgcolor": "#353"
@@ -534,17 +465,12 @@
         }
       ],
       "properties": {
-        "ue_properties": {
-          "widget_ue_connectable": {},
-          "input_ue_unconnectable": {},
-          "version": "7.5.2"
-        },
         "cnr_id": "comfy-core",
         "ver": "0.11.0",
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "jimeng-2026-01-30-7509-将背景变成纯灰色，男人表情改成严肃温和儒雅，略带忧郁，其他不变.png",
+        "image3.png",
         "image"
       ]
     }
@@ -595,7 +521,7 @@
       130,
       0,
       145,
-      3,
+      2,
       "IMAGE"
     ],
     [
@@ -611,7 +537,7 @@
       146,
       0,
       145,
-      5,
+      6,
       "IMAGE"
     ],
     [
@@ -652,12 +578,6 @@
   "extra": {
     "frontendVersion": "1.37.11",
     "workflowRendererVersion": "LG",
-    "VHS_latentpreview": false,
-    "VHS_latentpreviewrate": 0,
-    "VHS_MetadataImage": true,
-    "VHS_KeepIntermediate": true,
-    "ue_links": [],
-    "links_added_by_ue": [],
     "ds": {
       "scale": 0.6209213230591558,
       "offset": [
