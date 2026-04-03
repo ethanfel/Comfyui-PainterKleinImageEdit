@@ -108,11 +108,14 @@ class PainterKleinImageEdit:
                 )
 
         # Canvas latent:
-        # - Inpainting (mask1 connected): encode original image1 so the sampler can preserve
-        #   the unmasked regions. Without this the unmasked areas stay as black zeros.
-        # - Otherwise: empty canvas for full generation guided by conditioning.
-        if pending_mask1 is not None and pending_image1 is not None:
-            latent = {"samples": vae.encode(pending_image1)}
+        # - image1 connected: encode image1 (resized to width×height) as the starting canvas.
+        #   Without a mask the model edits the full image; with mask1 it inpaints the masked region.
+        # - No images: empty canvas for text-to-image generation.
+        if pending_image1 is not None:
+            canvas_img = comfy.utils.common_upscale(
+                pending_image1.movedim(-1, 1), width, height, "lanczos", "disabled"
+            ).movedim(1, -1)
+            latent = {"samples": vae.encode(canvas_img)}
         else:
             device = comfy.model_management.get_torch_device()
             empty_pixels = torch.zeros(1, height, width, 3, device=device)
