@@ -33,7 +33,9 @@ function syncSlots(node, count) {
         if (!existingNames.has(`image${i}`)) node.addInput(`image${i}`, "IMAGE");
     }
 
-    node.size = node.computeSize();
+    const newSize = node.computeSize();
+    node.size[0] = Math.max(node.size[0], newSize[0]); // never shrink width below minimum
+    node.size[1] = newSize[1];                          // always fit height to slot count
     node.setDirtyCanvas(true, true);
 }
 
