@@ -60,12 +60,15 @@ app.registerExtension({
             return result;
         };
 
-        // Called when a node is restored from a saved workflow
+        // Called when a node is restored from a saved workflow.
+        // syncSlots must run BEFORE the base onConfigure so that LiteGraph
+        // finds the slots when it rewires saved connections.
         const onConfigure = nodeType.prototype.onConfigure;
         nodeType.prototype.onConfigure = function (config) {
+            // widgets_values[2] = num_images (prompt=0, negative_prompt=1, num_images=2)
+            const rawCount = config?.widgets_values?.[2];
+            if (rawCount !== undefined) syncSlots(this, rawCount);
             onConfigure?.apply(this, arguments);
-            const widget = this.widgets?.find((w) => w.name === "num_images");
-            if (widget) syncSlots(this, widget.value);
         };
     },
 });
