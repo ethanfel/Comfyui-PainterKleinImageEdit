@@ -8,10 +8,12 @@ import { app } from "../../scripts/app.js";
 function syncSlots(node, count) {
     count = Math.max(1, Math.min(10, parseInt(count) || 1));
 
+    // image1 + mask1 always present; images 2-N have no mask slot
     const wanted = new Set();
-    for (let i = 1; i <= count; i++) {
+    wanted.add("image1");
+    wanted.add("mask1");
+    for (let i = 2; i <= count; i++) {
         wanted.add(`image${i}`);
-        wanted.add(`mask${i}`);
     }
 
     // Remove unwanted dynamic inputs (iterate backwards to keep indices stable)
@@ -23,11 +25,12 @@ function syncSlots(node, count) {
         }
     }
 
-    // Add missing inputs in order so they appear grouped (image1, mask1, image2, mask2, …)
+    // Add missing inputs in order: image1, mask1, image2, image3, …
     const existingNames = new Set((node.inputs || []).map((inp) => inp.name));
-    for (let i = 1; i <= count; i++) {
+    if (!existingNames.has("image1")) node.addInput("image1", "IMAGE");
+    if (!existingNames.has("mask1"))  node.addInput("mask1",  "MASK");
+    for (let i = 2; i <= count; i++) {
         if (!existingNames.has(`image${i}`)) node.addInput(`image${i}`, "IMAGE");
-        if (!existingNames.has(`mask${i}`)) node.addInput(`mask${i}`, "MASK");
     }
 
     node.size = node.computeSize();

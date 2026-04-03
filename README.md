@@ -51,7 +51,7 @@ git clone https://github.com/ethanfel/Comfyui-PainterKleinImageEdit.git
 | `height` | INT | Output canvas height |
 | `vae` | VAE | FLUX.2 [klein] VAE |
 | `image1`…`image10` | IMAGE | Reference images (slots shown based on `num_images`) |
-| `mask1`…`mask10` | MASK | Optional masks per image slot |
+| `mask1` | MASK | Optional inpainting mask for image1 (noise_mask on canvas) |
 
 ## Node Outputs
 

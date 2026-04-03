@@ -48,27 +48,9 @@ class PainterKleinImageEdit:
             img = image[:, :, :, :3]  # ensure RGB only
 
             if i == 1:
-                pending_image1 = img  # save before any masking; used for canvas
-                # mask1 is only used as noise_mask on the canvas — the reference latent
-                # keeps the full unmasked image so the model retains full context
+                pending_image1 = img  # save for canvas; mask1 applied as noise_mask only
                 if mask is not None:
                     pending_mask1 = mask
-            else:
-                # masks 2–N zero out regions of their reference image before encoding,
-                # focusing the model on the unmasked parts of each reference
-                if mask is not None:
-                    img_h, img_w = img.shape[1], img.shape[2]
-                    if mask.dim() == 2:
-                        m = mask.unsqueeze(0).unsqueeze(0)
-                    elif mask.dim() == 3:
-                        m = mask.unsqueeze(1)
-                    else:
-                        m = mask
-                    m = m.float()
-                    if m.shape[2] != img_h or m.shape[3] != img_w:
-                        m = comfy.utils.common_upscale(m, img_w, img_h, "area", "disabled")
-                    m = m.squeeze(1).unsqueeze(-1)
-                    img = img * (1.0 - m)
 
             ref_latent = vae.encode(img)
             ref_latents.append(ref_latent)
