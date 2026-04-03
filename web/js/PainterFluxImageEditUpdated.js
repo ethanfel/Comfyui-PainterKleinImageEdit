@@ -35,10 +35,10 @@ function syncSlots(node, count) {
 }
 
 app.registerExtension({
-    name: "Painter.FluxImageEdit",
+    name: "Painter.FluxImageEditUpdated",
 
     async beforeRegisterNodeDef(nodeType, nodeData) {
-        if (nodeData.name !== "PainterFluxImageEdit") return;
+        if (nodeData.name !== "PainterFluxImageEditUpdated") return;
 
         // Called when a new node is created (drag from menu)
         const onNodeCreated = nodeType.prototype.onNodeCreated;

@@ -4,7 +4,7 @@ import torch
 import comfy.model_management
 
 
-class PainterFluxImageEdit:
+class PainterFluxImageEditUpdated:
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -125,9 +125,9 @@ class PainterFluxImageEdit:
 
 
 NODE_CLASS_MAPPINGS = {
-    "PainterFluxImageEdit": PainterFluxImageEdit,
+    "PainterFluxImageEditUpdated": PainterFluxImageEditUpdated,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "PainterFluxImageEdit": "Painter Flux Image Edit",
+    "PainterFluxImageEditUpdated": "Painter Flux Image Edit (Updated)",
 }
