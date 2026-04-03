@@ -1,4 +1,4 @@
-# ComfyUI-PainterFluxImageEditUpdated
+# ComfyUI-PainterKleinImageEdit
 
 An improved ComfyUI node for **FLUX.2 [klein]** (4B / 9B) image editing and text-to-image generation.
 
@@ -28,12 +28,12 @@ This is an updated version of the original PainterFluxImageEdit node, rewritten 
 
 ## Installation
 
-Via ComfyUI Manager — search for `ComfyUI-PainterFluxImageEditUpdated`.
+Via ComfyUI Manager — search for `ComfyUI-PainterKleinImageEdit`.
 
 Or clone manually into your `custom_nodes` directory:
 
 ```bash
-git clone https://github.com/ethanfel/Comfyui-PainterFluxImageEditUpdated.git
+git clone https://github.com/ethanfel/Comfyui-PainterKleinImageEdit.git
 ```
 
 ---

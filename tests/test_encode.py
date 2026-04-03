@@ -39,7 +39,7 @@ sys.modules["comfy"] = comfy_mock
 sys.modules["comfy.utils"] = comfy_utils_mock
 sys.modules["comfy.model_management"] = comfy_mm_mock
 
-from PainterFluxImageEditUpdated import PainterFluxImageEditUpdated  # noqa: E402
+from PainterKleinImageEdit import PainterKleinImageEdit  # noqa: E402
 
 
 def _make_clip(prompt_result=None):
@@ -70,22 +70,22 @@ def _make_mask(h=512, w=512, b=1):
 
 class TestInputTypes(unittest.TestCase):
     def test_num_images_replaces_mode(self):
-        inputs = PainterFluxImageEditUpdated.INPUT_TYPES()
+        inputs = PainterKleinImageEdit.INPUT_TYPES()
         required = inputs["required"]
         self.assertIn("num_images", required)
         self.assertNotIn("mode", required)
 
     def test_negative_prompt_required(self):
-        inputs = PainterFluxImageEditUpdated.INPUT_TYPES()
+        inputs = PainterKleinImageEdit.INPUT_TYPES()
         self.assertIn("negative_prompt", inputs["required"])
 
     def test_reference_latents_method_optional(self):
-        inputs = PainterFluxImageEditUpdated.INPUT_TYPES()
+        inputs = PainterKleinImageEdit.INPUT_TYPES()
         self.assertIn("reference_latents_method", inputs["optional"])
 
     def test_no_image_slots_in_input_types(self):
         """Image slots are added dynamically by JS, not defined in INPUT_TYPES."""
-        inputs = PainterFluxImageEditUpdated.INPUT_TYPES()
+        inputs = PainterKleinImageEdit.INPUT_TYPES()
         all_keys = list(inputs.get("required", {})) + list(inputs.get("optional", {}))
         image_keys = [k for k in all_keys if k.startswith("image") or k.startswith("mask")]
         self.assertEqual(image_keys, [], "image/mask slots must not be in INPUT_TYPES")
@@ -93,7 +93,7 @@ class TestInputTypes(unittest.TestCase):
 
 class TestEncodeNoImages(unittest.TestCase):
     def setUp(self):
-        self.node = PainterFluxImageEditUpdated()
+        self.node = PainterKleinImageEdit()
         self.clip = _make_clip()
         self.vae = _make_vae()
 
@@ -131,7 +131,7 @@ class TestEncodeNoImages(unittest.TestCase):
 
 class TestEncodeWithImages(unittest.TestCase):
     def setUp(self):
-        self.node = PainterFluxImageEditUpdated()
+        self.node = PainterKleinImageEdit()
         self.clip = _make_clip([[torch.zeros(1, 77, 768), {}]])
         self.vae = _make_vae()
 

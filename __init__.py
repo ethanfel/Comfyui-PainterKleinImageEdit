@@ -1,5 +1,5 @@
 try:
-    from .PainterFluxImageEditUpdated import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+    from .PainterKleinImageEdit import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
 except ImportError:
     # Running outside of ComfyUI (e.g. during unit tests) — relative imports
     # are not available.  Expose empty mappings so pytest can load this file
