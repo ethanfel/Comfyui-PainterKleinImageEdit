@@ -45,6 +45,7 @@ class PainterKleinImageEdit:
 
         ref_latents = []
         pending_mask1 = None
+        pending_image1 = None  # original image1 (pre-masking) needed for inpainting base latent
 
         for i in range(1, num_images + 1):
             image = kwargs.get(f"image{i}")
@@ -54,6 +55,9 @@ class PainterKleinImageEdit:
                 continue
 
             img = image[:, :, :, :3]  # ensure RGB only
+
+            if i == 1:
+                pending_image1 = img  # save before masking so the canvas preserves this
 
             if mask is not None:
                 # Resize mask to image spatial dims, then zero out masked regions
@@ -102,10 +106,16 @@ class PainterKleinImageEdit:
                     negative, {"reference_latents_method": reference_latents_method}
                 )
 
-        # Empty canvas — reference latents flow through conditioning only, never replace the canvas
-        device = comfy.model_management.get_torch_device()
-        empty_pixels = torch.zeros(1, height, width, 3, device=device)
-        latent = {"samples": vae.encode(empty_pixels)}
+        # Canvas latent:
+        # - Inpainting (mask1 connected): encode original image1 so the sampler can preserve
+        #   the unmasked regions. Without this the unmasked areas stay as black zeros.
+        # - Otherwise: empty canvas for full generation guided by conditioning.
+        if pending_mask1 is not None and pending_image1 is not None:
+            latent = {"samples": vae.encode(pending_image1)}
+        else:
+            device = comfy.model_management.get_torch_device()
+            empty_pixels = torch.zeros(1, height, width, 3, device=device)
+            latent = {"samples": vae.encode(empty_pixels)}
 
         # Compute noise_mask now, using canvas latent spatial dims (not reference image dims)
         if pending_mask1 is not None:
