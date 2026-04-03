@@ -249,13 +249,35 @@ class TestEncodeWithImages(unittest.TestCase):
         self.assertNotIn("reference_latents_method", pos[0][1])
 
     def test_mask1_becomes_noise_mask(self):
-        img = _make_image(64, 64)
-        mask = _make_mask(64, 64)
+        """noise_mask must exist and use the canvas latent spatial dims, not the ref image dims."""
+        # image1 is 32×32; canvas is 128×128 → different latent spatial dims
+        img = _make_image(32, 32)
+        mask = _make_mask(32, 32)
+
+        canvas_latent = torch.zeros(1, 128, 8, 8)   # canvas 128×128 → 8×8 latent
+        ref_latent = torch.zeros(1, 128, 2, 2)       # image 32×32 → 2×2 latent
+
+        self.vae.encode.side_effect = [ref_latent, canvas_latent]
+
+        # Override upscale mock to actually resize so we can check output shape
+        import comfy.utils as cu
+        cu.common_upscale.side_effect = lambda t, w, h, *a, **k: torch.zeros(
+            t.shape[0], t.shape[1], h, w
+        )
+
         _, _, latent = self.node.encode(
-            self.clip, "p", "", 1, 1, 64, 64,
+            self.clip, "p", "", 1, 1, 128, 128,
             vae=self.vae, image1=img, mask1=mask
         )
+
         self.assertIn("noise_mask", latent)
+        nm = latent["noise_mask"]
+        # noise_mask spatial dims must match the canvas latent (8×8), not the ref latent (2×2)
+        self.assertEqual(nm.shape[-2], 8, "noise_mask height must match canvas latent height")
+        self.assertEqual(nm.shape[-1], 8, "noise_mask width must match canvas latent width")
+
+        # Restore mock
+        cu.common_upscale.side_effect = lambda t, w, h, *a, **k: t
 
     def test_negative_prompt_encoded_separately(self):
         img = _make_image()
@@ -340,7 +362,7 @@ class PainterFluxImageEdit:
             raise RuntimeError("VAE is required. Please connect a VAE loader.")
 
         ref_latents = []
-        noise_mask = None
+        pending_mask1 = None
 
         for i in range(1, num_images + 1):
             image = kwargs.get(f"image{i}")
@@ -370,21 +392,9 @@ class PainterFluxImageEdit:
             ref_latent = vae.encode(img)
             ref_latents.append(ref_latent)
 
-            # mask on slot 1 → noise_mask for the output canvas (inpainting)
+            # Store mask1 to compute noise_mask after canvas encoding (canvas dims needed)
             if i == 1 and mask is not None:
-                raw_mask = kwargs.get("mask1")
-                if raw_mask.dim() == 2:
-                    ms = raw_mask.unsqueeze(0).unsqueeze(0)
-                elif raw_mask.dim() == 3:
-                    ms = raw_mask.unsqueeze(1)
-                else:
-                    ms = None
-
-                if ms is not None:
-                    latent_h = ref_latent.shape[2]
-                    latent_w = ref_latent.shape[3]
-                    ms = comfy.utils.common_upscale(ms.float(), latent_w, latent_h, "area", "center")
-                    noise_mask = ms.squeeze(1)
+                pending_mask1 = mask
 
         # Encode prompts — FLUX.2 [klein] KleinTokenizer ignores images=, so we never pass it
         positive_tokens = clip.tokenize(prompt)
@@ -414,8 +424,16 @@ class PainterFluxImageEdit:
         empty_pixels = torch.zeros(1, height, width, 3, device=device)
         latent = {"samples": vae.encode(empty_pixels)}
 
-        if noise_mask is not None:
-            latent["noise_mask"] = noise_mask
+        # Compute noise_mask now, using canvas latent spatial dims (not reference image dims)
+        if pending_mask1 is not None:
+            latent_h = latent["samples"].shape[2]
+            latent_w = latent["samples"].shape[3]
+            if pending_mask1.dim() == 2:
+                ms = pending_mask1.unsqueeze(0).unsqueeze(0)
+            else:
+                ms = pending_mask1.unsqueeze(1)
+            ms = comfy.utils.common_upscale(ms.float(), latent_w, latent_h, "area", "center")
+            latent["noise_mask"] = ms.squeeze(1)
 
         if batch_size > 1:
             positive = positive * batch_size
@@ -427,6 +445,7 @@ class PainterFluxImageEdit:
 
             if "noise_mask" in latent and latent["noise_mask"].shape[0] == 1:
                 latent["noise_mask"] = latent["noise_mask"].repeat(batch_size, 1, 1)
+
 
         return (positive, negative, latent)
 
@@ -505,7 +524,8 @@ function syncSlots(node, count) {
         if (!existingNames.has(`mask${i}`)) node.addInput(`mask${i}`, "MASK");
     }
 
-    node.setSize(node.computeSize());
+    node.size = node.computeSize();
+    node.setDirtyCanvas(true, true);
 }
 
 app.registerExtension({
