@@ -72,10 +72,12 @@ class PainterKleinImageEdit:
 
 
         # Canvas latent:
-        # - image1 connected: encode image1 (resized to width×height) as the starting canvas.
-        #   Without a mask the model edits the full image; with mask1 it inpaints the masked region.
-        # - No images: empty canvas for text-to-image generation.
-        if pending_image1 is not None:
+        # - Inpainting (mask1 connected): encode original image1 as canvas so the sampler
+        #   preserves unmasked regions. noise_mask marks the region to regenerate.
+        # - Editing / text-to-image (no mask): empty canvas so the model generates the
+        #   edited result from scratch, guided purely by reference_latents + prompt.
+        #   Starting from image1 as canvas would block edits by anchoring the sampler.
+        if pending_mask1 is not None and pending_image1 is not None:
             canvas_img = comfy.utils.common_upscale(
                 pending_image1.movedim(-1, 1), width, height, "lanczos", "disabled"
             ).movedim(1, -1)
