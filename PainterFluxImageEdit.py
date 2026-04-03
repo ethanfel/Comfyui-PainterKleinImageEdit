@@ -57,8 +57,9 @@ class PainterFluxImageEdit:
                 else:
                     m = mask
 
+                m = m.float()
                 if m.shape[2] != img_h or m.shape[3] != img_w:
-                    m = comfy.utils.common_upscale(m.float(), img_w, img_h, "area", "center")
+                    m = comfy.utils.common_upscale(m, img_w, img_h, "area", "disabled")
 
                 m = m.squeeze(1).unsqueeze(-1)  # [B, H, W, 1]
                 img = img * (1.0 - m)
@@ -106,7 +107,7 @@ class PainterFluxImageEdit:
                 ms = pending_mask1.unsqueeze(0).unsqueeze(0)
             else:
                 ms = pending_mask1.unsqueeze(1)
-            ms = comfy.utils.common_upscale(ms.float(), latent_w, latent_h, "area", "center")
+            ms = comfy.utils.common_upscale(ms.float(), latent_w, latent_h, "area", "disabled")
             latent["noise_mask"] = ms.squeeze(1)
 
         if batch_size > 1:

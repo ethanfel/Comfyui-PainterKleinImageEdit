@@ -61,14 +61,22 @@ app.registerExtension({
         };
 
         // Called when a node is restored from a saved workflow.
-        // syncSlots must run BEFORE the base onConfigure so that LiteGraph
-        // finds the slots when it rewires saved connections.
+        // First pass: sync slots from raw config BEFORE the base onConfigure so
+        // LiteGraph finds the slots when it rewires saved connections.
+        // Second pass: re-sync after the base restores widget values, so we use
+        // the actual widget value rather than a hardcoded index.
         const onConfigure = nodeType.prototype.onConfigure;
         nodeType.prototype.onConfigure = function (config) {
-            // widgets_values[2] = num_images (prompt=0, negative_prompt=1, num_images=2)
-            const rawCount = config?.widgets_values?.[2];
+            // Pre-pass: use raw widgets_values to add slots before link rewiring.
+            // Find num_images by scanning for its position among widget names.
+            const widgetNames = (this.widgets || []).map((w) => w.name);
+            const idx = widgetNames.indexOf("num_images");
+            const rawCount = idx !== -1 ? config?.widgets_values?.[idx] : config?.widgets_values?.[2];
             if (rawCount !== undefined) syncSlots(this, rawCount);
             onConfigure?.apply(this, arguments);
+            // Post-pass: re-sync using the restored widget value (authoritative).
+            const widget = this.widgets?.find((w) => w.name === "num_images");
+            if (widget) syncSlots(this, widget.value);
         };
     },
 });
