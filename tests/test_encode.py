@@ -206,15 +206,17 @@ class TestEncodeWithImages(unittest.TestCase):
         img = _make_image(32, 32)
         mask = _make_mask(32, 32)
 
-        canvas_latent = torch.zeros(1, 128, 8, 8)   # canvas 128×128 → 8×8 latent
-        ref_latent = torch.zeros(1, 128, 2, 2)       # image 32×32 → 2×2 latent
-
+        canvas_latent = torch.zeros(1, 128, 8, 8)
+        ref_latent = torch.zeros(1, 128, 2, 2)
         self.vae.encode.side_effect = [ref_latent, canvas_latent]
 
         import comfy.utils as cu
+        original_side_effect = cu.common_upscale.side_effect
         cu.common_upscale.side_effect = lambda t, w, h, *a, **k: torch.zeros(
             t.shape[0], t.shape[1], h, w
         )
+        self.addCleanup(setattr, cu, 'common_upscale',
+                        MagicMock(side_effect=lambda t, w, h, *a, **k: t))
 
         _, _, latent = self.node.encode(
             self.clip, "p", "", 1, 1, 128, 128,
@@ -226,8 +228,6 @@ class TestEncodeWithImages(unittest.TestCase):
         self.assertEqual(nm.shape[-2], 8, "noise_mask height must match canvas latent height")
         self.assertEqual(nm.shape[-1], 8, "noise_mask width must match canvas latent width")
 
-        cu.common_upscale.side_effect = lambda t, w, h, *a, **k: t
-
     def test_negative_prompt_encoded_separately(self):
         img = _make_image()
         self.node.encode(
@@ -237,6 +237,18 @@ class TestEncodeWithImages(unittest.TestCase):
         tokenize_calls = [c.args[0] for c in self.clip.tokenize.call_args_list]
         self.assertIn("positive text", tokenize_calls)
         self.assertIn("negative text", tokenize_calls)
+
+    def test_reference_latents_uses_append(self):
+        """reference_latents must accumulate across images, not replace."""
+        img1, img2 = _make_image(), _make_image()
+        pos, neg, _ = self.node.encode(
+            self.clip, "p", "", 2, 1, 512, 512,
+            vae=self.vae, image1=img1, image2=img2,
+        )
+        # Both reference latents must be present — append=True, not replace
+        self.assertEqual(len(pos[0][1]["reference_latents"]), 2,
+                         "Both reference latents must be in conditioning (append=True)")
+        self.assertEqual(len(neg[0][1]["reference_latents"]), 2)
 
     def test_vae_required(self):
         with self.assertRaises(RuntimeError):
